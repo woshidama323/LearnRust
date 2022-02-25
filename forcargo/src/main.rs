@@ -1,82 +1,91 @@
 use std::fmt;
+use lazy_static::lazy_static;
+use yastl::Pool;
+
+lazy_static!{
+    static ref THREAD_POOL: Pool = Pool::new(num_cpus::get());
+}
+
+
 
 fn main() {
     println!("Hello, world!");
-    #[warn(unused_variables)]
-    let _a = 123;
-    // a = "456"; 会失败，rust是请类型的语言上面的代码已经固定了 a是整型
-    // a = 4.56;  会失败，精度不同也不行
-    // a = 456;   会失败，a不可更改变量
-    let mut _b = 123i64; //下划线 函数内部使用
-    _b = 456; //b 声明成mut 即可修改变量，所以成功 
+    // #[warn(unused_variables)]
+    // let _a = 123;
+    // // a = "456"; 会失败，rust是请类型的语言上面的代码已经固定了 a是整型
+    // // a = 4.56;  会失败，精度不同也不行
+    // // a = 456;   会失败，a不可更改变量
+    // let mut _b = 123i64; //下划线 函数内部使用
+    // _b = 456; //b 声明成mut 即可修改变量，所以成功 
 
-    let mut _s = "123";
-    //s = s.len(); //可变变量 只能改值，不能改类型
-
-
-    //格式化输出
-    println!("{0}whyere{1}","harry","test");
-    let _str = format!("{}",_b);
-    println!("{}",_str);
-
-    //另外一种格式化输出 根据别名
-    println!("{subject} {verb} {object}",
-                object="harry ",
-                subject="haoqian",
-                verb="wangna");
-
-    /*不同格式 用: 来表示 b二进制 
-    - ``, which uses the `Display` trait
-    - `?`, which uses the `Debug` trait
-    - `e`, which uses the `LowerExp` trait
-    - `E`, which uses the `UpperExp` trait
-    - `o`, which uses the `Octal` trait
-    - `p`, which uses the `Pointer` trait
-    - `b`, which uses the `Binary` trait
-    - `x`, which uses the `LowerHex` trait
-    - `X`, which uses the `UpperHex` trait
-    */
-    println!("{} of {:} people know binary, the other half doesn't", 1, _a);
+    // let mut _s = "123";
+    // //s = s.len(); //可变变量 只能改值，不能改类型
 
 
-    //右对齐 这里number是要显示的数据，width 数据总长  xxxxx1
-    println!("{number:>width$}", number=1, width=6);
+    // //格式化输出
+    // println!("{0}whyere{1}","harry","test");
+    // let _str = format!("{}",_b);
+    // println!("{}",_str);
 
-    //特殊字符补全空格 xxxxx1
-    println!("{number:x>width$}", number=1, width=6);
+    // //另外一种格式化输出 根据别名
+    // println!("{subject} {verb} {object}",
+    //             object="harry ",
+    //             subject="haoqian",
+    //             verb="wangna");
+
+    // /*不同格式 用: 来表示 b二进制 
+    // - ``, which uses the `Display` trait
+    // - `?`, which uses the `Debug` trait
+    // - `e`, which uses the `LowerExp` trait
+    // - `E`, which uses the `UpperExp` trait
+    // - `o`, which uses the `Octal` trait
+    // - `p`, which uses the `Pointer` trait
+    // - `b`, which uses the `Binary` trait
+    // - `x`, which uses the `LowerHex` trait
+    // - `X`, which uses the `UpperHex` trait
+    // */
+    // println!("{} of {:} people know binary, the other half doesn't", 1, _a);
 
 
-    // `#[allow(dead_code)]` is an attribute that disables the `dead_code` lint
-    // #[allow(dead_code)]
-    #[derive(Debug)]
-    struct TestDebug(i32);
-    // println!("This struct `{:}` won't print...", Structure(3)); 失败，原因是需要自己实现输出方式
-    println!("This struct `{:?}` won't print...", TestDebug(3));
-    let strtest = Structure {x: 1i32, y: 2i64};
-    println!("{}",strtest); //只打印struct实现中的数据内容
-    println!("{:?}",strtest); //打印struct本身的全定义
-    println!("{:#?}",strtest); //打印struct本身的全定义 打印的格式更为友好
-    //如果实现b trait等数据 得每一个都得自己实现
+    // //右对齐 这里number是要显示的数据，width 数据总长  xxxxx1
+    // println!("{number:>width$}", number=1, width=6);
+
+    // //特殊字符补全空格 xxxxx1
+    // println!("{number:x>width$}", number=1, width=6);
 
 
-    //测试显示list
-    let l = List(vec![1,2,3]);
-    println!("{}",l);
+    // // `#[allow(dead_code)]` is an attribute that disables the `dead_code` lint
+    // // #[allow(dead_code)]
+    // #[derive(Debug)]
+    // struct TestDebug(i32);
+    // // println!("This struct `{:}` won't print...", Structure(3)); 失败，原因是需要自己实现输出方式
+    // println!("This struct `{:?}` won't print...", TestDebug(3));
+    // let strtest = Structure {x: 1i32, y: 2i64};
+    // println!("{}",strtest); //只打印struct实现中的数据内容
+    // println!("{:?}",strtest); //打印struct本身的全定义
+    // println!("{:#?}",strtest); //打印struct本身的全定义 打印的格式更为友好
+    // //如果实现b trait等数据 得每一个都得自己实现
 
-    //测试city的数据
+
+    // //测试显示list
+    // let l = List(vec![1,2,3]);
+    // println!("{}",l);
+
+    // //测试city的数据
     
-    for city in [
-        City {name : "Harry", lat: 53.3477, lon:-6.434},
-        City {name : "qianqian",lat:23.2323,lon:27.0}, //如果类型是f32的类型，初始化的时候也要是 float格式，否认报错
-        City {name : "nana",lat:48.56,lon:-123.4},
-    ].iter(){
-        println!("{}",*city);
-    }
+    // for city in [
+    //     City {name : "Harry", lat: 53.3477, lon:-6.434},
+    //     City {name : "qianqian",lat:23.2323,lon:27.0}, //如果类型是f32的类型，初始化的时候也要是 float格式，否认报错
+    //     City {name : "nana",lat:48.56,lon:-123.4},
+    // ].iter(){
+    //     println!("{}",*city);
+    // }
 
     //function使用
-    testoperate();
-    matchfunction();
-    testmapoeprate();
+    // testoperate();
+    // matchfunction();
+    // testmapoeprate();
+    testchannel();
 }
 
 #[derive(Debug)]
@@ -208,3 +217,30 @@ fn testmapoeprate() -> bool {
 fn is_odd(n: u32) -> bool {
     n % 2 == 1
 }
+
+
+fn testchannel() {
+    let mut databytes: Vec<u8> = vec![];
+
+    // let(data_tx, data_rx) = channel::<(Vec<u8>,Vec<u8>)>(0);
+    THREAD_POOL.scoped(|s| {
+        for i in 0..100{
+            s.execute(move || {
+                println!("testing");
+            });
+        }
+
+    });
+}
+
+//test 多线程
+use rayon::prelude::{
+    IndexedParallelIterator, IntoParallelIterator, ParallelIterator, ParallelSliceMut,
+};
+
+fn testmultiThread() {
+    println!("counting in parallel:");
+    (0..100).into_par_iter()
+        .for_each(|i| println!("{}", i));
+}
+
