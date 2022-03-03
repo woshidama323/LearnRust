@@ -24,3 +24,7 @@ https://doc.rust-lang.org/cargo/getting-started/index.html
 
 https://stackoverflow.com/questions/38803760/how-to-get-a-release-build-with-debugging-information-when-using-cargo
 
+
+
+[代码样例](notes/lockfile.md#rust中的样例)
+
