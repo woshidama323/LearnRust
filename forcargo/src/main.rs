@@ -1,6 +1,7 @@
 use std::fmt;
 use lazy_static::lazy_static;
 use yastl::Pool;
+use std::thread;
 
 lazy_static!{
     static ref THREAD_POOL: Pool = Pool::new(num_cpus::get());
@@ -85,7 +86,12 @@ fn main() {
     // testoperate();
     // matchfunction();
     // testmapoeprate();
-    testchannel();
+    // testchannel();
+
+    //测试另外一种多线程
+    // testmultiThread();
+    // testSizeof();
+    optionissue();
 }
 
 #[derive(Debug)]
@@ -226,7 +232,8 @@ fn testchannel() {
     THREAD_POOL.scoped(|s| {
         for i in 0..100{
             s.execute(move || {
-                println!("testing");
+                // let id = ;
+                println!("testing current id: {:?}",thread::current().id());
             });
         }
 
@@ -244,3 +251,40 @@ fn testmultiThread() {
         .for_each(|i| println!("{}", i));
 }
 
+
+//Struct std::slice::ChunksCopy item path
+
+//
+fn testSizeof(){
+    let siz = std::mem::size_of::<u8>();
+    println!("siz: {:?}",siz);
+}
+
+// 关于 option 如何修改
+fn optionissue(){
+    fn divide(numerator: f64, denominator: f64) -> Option<f64> {
+        if denominator == 0.0 {
+            None
+        } else {
+            Some(numerator / denominator)
+        }
+    }
+    
+    // The return value of the function is an option
+    let result = divide(2.0, 3.0);
+    
+    // Pattern match to retrieve the value
+    let why = match result {
+        // The division was valid
+        Some(x) => {
+            println!("Result: {}", x);
+            x
+        }
+        // The division was invalid
+        None    => {
+            println!("Cannot divide by 0");
+            0.0
+        }
+    };
+    println!("why: {:?}",why);
+}
