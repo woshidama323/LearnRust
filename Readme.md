@@ -1,12 +1,15 @@
-### 必要的记录
+### rust基础只是学习与代码样例
 
-资料来源：
+#### Debug程序方法
++ Linux上使用rust-gdb 
++ MacOs上使用rust-lldb
+[lldb]
+
+#### rust官方资料
 https://doc.rust-lang.org/stable/rust-by-example/hello.html
 
-
-### debug 方式 
 lldb 
-https://www.nesono.com/sites/default/files/lldb%20cheat%20sheet.pdf
+
 
 ### 编译器选择
 
@@ -26,5 +29,6 @@ https://stackoverflow.com/questions/38803760/how-to-get-a-release-build-with-deb
 
 
 
-[代码样例](notes/lockfile.md#rust中的样例)
+1. [文件锁在rust中的使用](notes/lockfile.md#rust中的样例)
+2. [merkletree样例](notes/merkletree_notes.md)
 
