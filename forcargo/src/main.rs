@@ -2,6 +2,11 @@ use std::fmt;
 use lazy_static::lazy_static;
 use yastl::Pool;
 use std::thread;
+use std::time::{Duration,SystemTime};
+use std::sync::{
+    atomic::{AtomicU64, Ordering::SeqCst},
+    Arc, MutexGuard,
+};
 
 lazy_static!{
     static ref THREAD_POOL: Pool = Pool::new(num_cpus::get());
@@ -92,6 +97,42 @@ fn main() {
     // testmultiThread();
     // testSizeof();
     // optionissue();
+
+    //利用一个线程产生一个信号量？
+    let cur_producer = AtomicU64::new(0);
+    crossbeam::thread::scope(|s| {
+
+        let newthread = s.spawn( |_| {
+
+            loop {
+                thread::sleep(Duration::from_secs(2));
+                println!("starting store somethings");
+                // let now = SystemTime::now();
+
+                match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+                    Ok(n) => {
+                        println!("1970-01-01 00:00:00 UTC was {} seconds ago!", n.as_secs());
+                        cur_producer.store(n.as_secs(),SeqCst);
+                    }
+                    Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+                }
+
+            }
+
+        });
+
+
+        // let secondthread = s.spawn( |_| {
+        // });
+        thread::sleep(Duration::from_secs(10));
+        let output = cur_producer.load(SeqCst);
+        println!("output is {}",output);
+
+        // secondthread.join().expect("join failed");
+        newthread.join().expect("join failed");
+    });
+
+
 
     for i in 0..BASE_DEGREE { //这样是左开又闭的。
         println!("zuo kai you bi: {}",i)
