@@ -7,7 +7,7 @@ lazy_static!{
     static ref THREAD_POOL: Pool = Pool::new(num_cpus::get());
 }
 
-
+pub const BASE_DEGREE: usize = 6;
 
 fn main() {
     println!("Hello, world!");
@@ -91,7 +91,13 @@ fn main() {
     //测试另外一种多线程
     // testmultiThread();
     // testSizeof();
-    optionissue();
+    // optionissue();
+
+    for i in 0..BASE_DEGREE { //这样是左开又闭的。
+        println!("zuo kai you bi: {}",i)
+
+    }
+    
 }
 
 #[derive(Debug)]

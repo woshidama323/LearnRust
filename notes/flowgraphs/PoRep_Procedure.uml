@@ -1,0 +1,31 @@
+@startuml ProofsOfReplication
+start
+:PoRep.Setup;
+note right
+  This note is on several
+  //lines// and can
+  <math>pk_{g}</math>广播出去 以便其他worker节点与本节点建立安全连接
+  <math>k_{r}^((0))</math>保存在Genesis节点中，用于blockchain后续签名等用途
+  contain <b>HTML</b>
+  ====
+  * Calling the method ""foo()"" is prohibited
+end note
+
+:PoRep.Replicate;
+note right
+  This note is on several
+  //lines// and can
+  <math>pk_{g}</math>广播出去 以便其他worker节点与本节点建立安全连接
+  <math>k_{r}^((0))</math>保存在Genesis节点中，用于blockchain后续签名等用途
+  contain <b>HTML</b>
+  ====
+  * Calling the method ""foo()"" is prohibited
+end note
+
+:PoRep.Poll;
+
+:PoRep.Prove;
+
+:PoRep.Verify;
+
+@enduml
