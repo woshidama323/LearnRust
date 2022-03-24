@@ -8,6 +8,12 @@ use std::sync::{
     Arc, MutexGuard,
 };
 
+use std::fs::OpenOptions;
+use std::path::PathBuf;
+
+use memmap::MmapMut;
+
+
 lazy_static!{
     static ref THREAD_POOL: Pool = Pool::new(num_cpus::get());
 }
@@ -99,46 +105,9 @@ fn main() {
     // optionissue();
 
     //利用一个线程产生一个信号量？
-    let cur_producer = AtomicU64::new(0);
-    crossbeam::thread::scope(|s| {
 
-        let newthread = s.spawn( |_| {
-
-            loop {
-                thread::sleep(Duration::from_secs(2));
-                println!("starting store somethings");
-                // let now = SystemTime::now();
-
-                match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
-                    Ok(n) => {
-                        println!("1970-01-01 00:00:00 UTC was {} seconds ago!", n.as_secs());
-                        cur_producer.store(n.as_secs(),SeqCst);
-                    }
-                    Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-                }
-
-            }
-
-        });
-
-
-        // let secondthread = s.spawn( |_| {
-        // });
-        thread::sleep(Duration::from_secs(10));
-        let output = cur_producer.load(SeqCst);
-        println!("output is {}",output);
-
-        // secondthread.join().expect("join failed");
-        newthread.join().expect("join failed");
-    });
-
-
-
-    for i in 0..BASE_DEGREE { //这样是左开又闭的。
-        println!("zuo kai you bi: {}",i)
-
-    }
-    
+    // testThread();
+    testmmap();
 }
 
 #[derive(Debug)]
@@ -335,3 +304,68 @@ fn optionissue(){
     };
     println!("why: {:?}",why);
 }
+
+
+//(understand mmapf
+fn testmmap() -> Result<MmapMut,std::io::Error>{
+
+    let path: PathBuf = PathBuf::from("./test.txt") ;/* path to file */
+    let file = OpenOptions::new()
+                           .read(true)
+                           .write(true)
+                           .create(true)
+                           .open(&path)?;
+    file.set_len(13)?; //这里只设置了13字节的长度？测试结果看，只开辟了13个字节
+    
+    let mut mmap = unsafe { MmapMut::map_mut(&file) }?;
+    
+    mmap.copy_from_slice(b"Hello, world!harry");
+
+    Ok(mmap)
+
+}
+
+
+//test thread with atomic 
+fn testThread() {
+    let cur_producer = AtomicU64::new(0);
+    crossbeam::thread::scope(|s| {
+
+        let newthread = s.spawn( |_| {
+
+            loop {
+                thread::sleep(Duration::from_secs(2));
+                println!("starting store somethings");
+                // let now = SystemTime::now();
+
+                match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+                    Ok(n) => {
+                        println!("1970-01-01 00:00:00 UTC was {} seconds ago!", n.as_secs());
+                        // cur_producer.store(n.as_secs(),SeqCst);
+                        cur_producer.fetch_add(10,SeqCst);
+                    }
+                    Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+                }
+            }
+
+        });
+
+
+        // let secondthread = s.spawn( |_| {
+        // });
+        thread::sleep(Duration::from_secs(10));
+        let output = cur_producer.load(SeqCst);
+        println!("output is {}",output);
+
+        // secondthread.join().expect("join failed");
+        newthread.join().expect("join failed");
+    });
+
+
+
+    for i in 0..BASE_DEGREE { //这样是左开又闭的。
+        println!("zuo kai you bi: {}",i)
+
+    }
+}
+ 
