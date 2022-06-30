@@ -12,10 +12,23 @@ use std::fs::OpenOptions;
 use std::path::PathBuf;
 
 use memmap::MmapMut;
+use hwloc::{ObjectType, Topology, TopologyObject, Bitmap, CPUBIND_THREAD, CPUBIND_PROCESS, CPUBIND_STRICT};
+use log::{debug, info, warn};
+use std::sync::{Mutex};
 
+// lazy_static! {
+//     pub static ref CORE_GROUPS: Option<Vec<Mutex<CoreGroup>>> = {
+//         let num_producers = &SETTINGS.multicore_sdr_producers;
+//         let cores_per_unit = num_producers + 1;
+
+//         core_groups(cores_per_unit)
+//     };
+// }
 
 lazy_static!{
     static ref THREAD_POOL: Pool = Pool::new(num_cpus::get());
+    pub static ref TOPOLOGY: Mutex<Topology> = Mutex::new(Topology::new());
+
 }
 
 pub const BASE_DEGREE: usize = 6;
@@ -107,7 +120,8 @@ fn main() {
     //利用一个线程产生一个信号量？
 
     // testThread();
-    testmmap();
+    // testmmap();
+    get_core_info();
 }
 
 #[derive(Debug)]
@@ -369,3 +383,90 @@ fn testThread() {
     }
 }
  
+
+pub fn get_core_info()->(usize, usize, usize, usize, usize) { //Harry need to understand
+    let child_topo = &TOPOLOGY;
+    let topo = child_topo.lock().unwrap();
+
+    let package_depth = topo.depth_for_type(&ObjectType::Package).unwrap();
+    let package_count = topo.size_at_depth(package_depth) as usize;
+    let packages = topo.objects_at_depth(package_depth);
+    //if package_count>0 {
+    //    info!("Package depth:{}, count:{}, object type:{:?}", package_depth, package_count, packages[0].object_type());
+    //}
+ 
+    let numa_depth = topo.depth_for_type(&ObjectType::NUMANode).unwrap_or_default();
+    let numa_count = topo.size_at_depth(numa_depth) as usize;
+    let numas = topo.objects_at_depth(numa_depth);
+    //if numa_count>0 {
+    //    info!("Numa depth:{}, count:{}, object type:{:?}", numa_depth, numa_count, numas[0].object_type());
+    //}
+
+    let cache_depth_r = topo.depth_for_type(&ObjectType::Cache); //At our dual 7F32 CPU machine, it returns error.
+    let cache_depth = if cache_depth_r.is_ok() {
+        cache_depth_r.unwrap() 
+    }
+    else {
+        0
+    };
+    if cache_depth!=0 {
+        let cache_count = topo.size_at_depth(cache_depth) as usize;
+        let caches = topo.objects_at_depth(cache_depth);
+        //if cache_count>0 {
+        //    info!("Cache depth:{}, count:{}, object type:{:?}", cache_depth, cache_count, caches[0].object_type());
+        //}
+    }
+
+    let core_depth = topo.depth_for_type(&ObjectType::Core).unwrap();
+    let cores_count = topo.size_at_depth(core_depth) as usize;
+    let cores = topo.objects_at_depth(core_depth);
+    //if cores_count>0 {
+    //    info!("Core depth:{}, count:{}, object type:{:?}", core_depth, cores_count, cores[0].object_type());
+    //}
+
+    let core_depth = match topo.depth_or_below_for_type(&ObjectType::Core) {
+        Ok(depth) => depth,
+        Err(_) => return (0,0,0,0,0),
+    };
+    let all_cores = topo.objects_with_type(&ObjectType::Core).unwrap();
+    let core_count = all_cores.len();
+
+    let mut cache_depth = core_depth;
+    let mut cache_count = 0;
+
+    while cache_depth > 0 {
+        let objs = topo.objects_at_depth(cache_depth);
+        let obj_count = objs.len();
+        if obj_count < core_count {
+            cache_count = obj_count;
+            break;
+        }
+
+        cache_depth -= 1;
+    }
+
+    let mut node_count = numa_count;
+    
+    //Wrong info, mean this machine does not have multiple numa nodes
+    if numa_count>=core_count {
+        node_count = 1;
+    }
+    
+    //If the machine has multiple numa, set group_size to 1 to disable coregroup binding
+    if node_count>1 {
+       cache_count = core_count; 
+    }
+
+    let mut group_size = core_count / cache_count;
+    let group_count = cache_count;
+
+    // Something is wrong
+    if group_count==1 {
+        group_size=1;
+    }
+
+    info!("core_count={}, cache_count={}, core_depth={}, group_size={}, group_count={}, node_count={}",
+          core_count, cache_count, core_depth, group_size, group_count, node_count);
+    
+    (core_count, cache_count, group_size, group_count, node_count)
+}
