@@ -32,3 +32,8 @@ https://stackoverflow.com/questions/38803760/how-to-get-a-release-build-with-deb
 1. [文件锁在rust中的使用](notes/lockfile.md#rust中的样例)
 2. [merkletree样例](notes/merkletree_notes.md)
 
+
+
+### attributes
+1. dead_code 编译器会报warning unused 如果加上这个，会过滤掉
+2. 
