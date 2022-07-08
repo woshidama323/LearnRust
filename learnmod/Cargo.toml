@@ -1,0 +1,7 @@
+[package]
+name = "learnmod"
+version = "0.1.1"
+authors = ["harry <machengxue707@gmail.com>"]
+edition = "2021"
+
+[dependencies]
