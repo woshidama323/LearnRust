@@ -36,4 +36,10 @@ https://stackoverflow.com/questions/38803760/how-to-get-a-release-build-with-deb
 
 ### attributes
 1. dead_code 编译器会报warning unused 如果加上这个，会过滤掉
-2. 
+
+
+## cargo new 用于创建一个新的工程
+```shell
+cargo new [new path]
+cargo init ## 用于当前的目录
+```

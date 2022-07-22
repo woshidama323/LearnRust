@@ -1,3 +1,7 @@
+
+// 文件名为test.rs 中的变量或者函数可以这样访问
+pub mod test;
+
 mod harry_mod {
 
     //module中的元素默认是私有的
@@ -114,5 +118,18 @@ fn main(){
     // harry_mod::private_nested::function();
 
     //Error privated_nested is a private module
-    harry_mod::private_nested::restricted_function();
+    // harry_mod::private_nested::restricted_function();
+
+    test::test();
+
+    let mut ex = test::Example{
+        number: 12,
+    };
+
+    test::Example::boo(); // 有点跟其他的语言不太一样 
+    ex.answer(); 
+    ex.answer(); 
+    ex.get_number();  //定义过程中的参数，最终使用的时候，是这么使用的，有点反直觉
+
+    println!("the get_number result {}",ex.get_number());
 }
