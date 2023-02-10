@@ -43,3 +43,15 @@ https://stackoverflow.com/questions/38803760/how-to-get-a-release-build-with-deb
 cargo new [new path]
 cargo init ## 用于当前的目录
 ```
+
+## 更新当前的cargo rust版本
+```shell
+rustup update
+https://www.rust-lang.org/tools/install
+```
+
+### rust 学习
+```shell
+cargo add anyhow
+cargo1.62 之后，可以用上面的方法来增加package依赖包
+```

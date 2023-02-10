@@ -5,3 +5,9 @@ authors = ["harry <machengxue707@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.58"
+cid = "0.8.5"
+fvm_ipld_blockstore = "0.1.1"
+fvm_sdk = "1.0.0"
+serde = "1.0.140"
+serde_json = "1.0.82"
